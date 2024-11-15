@@ -22,3 +22,6 @@ Your idea is quite interesting! It’s an innovative **Memecoin economic model**
 - **Market Adoption**: Attracting enough users to participate in the vault is critical to the model’s success.  
 
 Let me know if you’d like to further design this model or need assistance with writing a whitepaper!
+
+![Uploading image.png…]()
+
