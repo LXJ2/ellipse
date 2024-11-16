@@ -25,4 +25,5 @@ Let me know if you’d like to further design this model or need assistance with
 
 <img width="736" alt="image" src="https://github.com/user-attachments/assets/63c229c1-93f4-4019-8655-df241a68e9f4">
 
-
+memeVault Contract Address in Sepolia:0xf8cc1b6512989e1178d7E9aA0C1d32B75d6A8106
+testToken Contract Address in Sepolia:0x670166306e8DAAb1934e8fa66c66160478735D67
