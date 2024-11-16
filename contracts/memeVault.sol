@@ -11,7 +11,7 @@ import "./stakeToken.sol";
 
 pragma solidity ^0.8.17;
 
-contract MEMEVAULT {
+contract MemeVault {
 //全局变量    
 
     uint feeForLp;
@@ -87,10 +87,10 @@ contract MEMEVAULT {
 
     }
 
-    function getLpInfo(address _token) public view returns(uint _tokenLpReserve,uint _tokenStakingReserve, uint _ethReserve,uint _borrowedAmount,uint _feeForLp){
+    function getLpInfo(address _token) public view returns(uint _tokenReserve, uint _ethReserve,uint _borrowedAmount,uint _feeForLp){
 
-        _tokenLpReserve = reserve[_token];
-        _tokenStakingReserve = stakingReserve[_token];
+        _tokenReserve = reserve[_token];
+        //_tokenStakingReserve = stakingReserve[_token];
         _ethReserve = ethReserve[_token];
         _borrowedAmount = borrowedAmount[_token];
         _feeForLp = feeForLp;
@@ -261,23 +261,39 @@ contract MEMEVAULT {
         ethBalance[_token] += amount;
     }
 
-    function checkPositionInfo(address _user,address _token)public view returns(uint _ethVault,uint _tokenVault,uint _borrowedTokenAmount ,uint _userEth,uint _userBorrowedTokenAmount,uint _healthyFactor){
 
+    function tokenPoolInfo(address _token)public view returns(uint _ethVault,uint _tokenVault, uint _price, uint _borrowedTokenAmount ){
+        _price = ONE_ETH * ethReserve[_token]/reserve[_token];
         _ethVault = ethBalance[_token];
         _tokenVault = stakingReserve[_token];
-        _borrowedTokenAmount = borrowedAmount[_token];
-        _userEth = userEthBalance[_user][_token];
+        _borrowedTokenAmount = borrowedAmount[_token];       
+
+    }
+
+    function userPositionInfo(address _user,address _token) public view returns(uint _userEthAmount,uint _userStakeTokenAmount,uint _userBorrowedTokenAmount,uint _healthyFactor,uint _liquidatedPrice){
+        uint _price = ONE_ETH * ethReserve[_token]/reserve[_token];
+
+
+        _userEthAmount = userEthBalance[_user][_token];
+        _userStakeTokenAmount = userStakingReserve[_user][_token];
         _userBorrowedTokenAmount = userBorrowedAmount[_user][_token];
         uint userDebt = userBorrowedAmount[_user][_token];
         uint ethAmountWithToken = calBuyTokenOutputAmount(_token, userEthBalance[_user][_token]);
-        if((_userEth == 0)||(_userBorrowedTokenAmount == 0)){
+        if((userEthBalance[_user][_token] == 0)||(_userBorrowedTokenAmount == 0)){
             _healthyFactor = 0;
+            _liquidatedPrice = 0;
         }else{
             _healthyFactor = userDebt * 10000 / ethAmountWithToken;
-        }
-        
 
+            if(_healthyFactor < 8000){
+                _liquidatedPrice = _price + _price * (8000 - _healthyFactor) / _healthyFactor ;
+            }
+
+            
+        }      
     }
+
+
 
     function BorrowAsset(address _token, uint _amount) public  {
         
@@ -348,6 +364,10 @@ contract MEMEVAULT {
 
     }
 
+
+
+
+
     // function shortToken(address _token) public payable {
     //     uint amount = msg.value;
     //     require(amount >= 1000,"require more than 1000wei");
@@ -382,27 +402,17 @@ contract MEMEVAULT {
 
     // }
 
-    function calClosePositionEthAmount(address _token) public view returns(uint ethDebt){
-        address user = msg.sender;
-        uint userDebt = userBorrowedAmount[user][_token];
-        //uint userAsset = userEthBalance[user][_token];
-        ethDebt = calSwapEthInAmount(_token, userDebt);
+    // function calClosePositionEthAmount(address _token) public view returns(uint ethDebt){
+    //     address user = msg.sender;
+    //     uint userDebt = userBorrowedAmount[user][_token];
+    //     //uint userAsset = userEthBalance[user][_token];
+    //     ethDebt = calSwapEthInAmount(_token, userDebt);
 
 
-        //ethDebt = calBuyTokenOutputAmount(_token, userDebt);
-    }
+    //     //ethDebt = calBuyTokenOutputAmount(_token, userDebt);
+    // }
 
-    function calRedeemEthAmount(address _token, uint _amount) public view returns(uint) {
-        address user = msg.sender;
-        uint userDebt = userBorrowedAmount[user][_token];
-        uint userAsset = userEthBalance[user][_token];
 
-        uint factor = ONE_ETH * _amount / userDebt;
-
-        uint ethAmount = factor * userAsset / ONE_ETH;
-
-        return ethAmount;
-    }
 
     // function calUserHelthyFactor(address _user,address _token) public view returns(uint helthyFactor) {
 
