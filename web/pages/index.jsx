@@ -35,6 +35,7 @@ const Home = () => {
   const [TokenPrice, setTokenPrice] = useState(0)
   const [UserDepositETH, setUserDepositETH] = useState(0)
   const [UserStakingAmount, setUserStakingAmount] = useState(0)
+  const [UserStakeTokenShare, setUserStakeTokenShare] = useState(0)
   const [UserBorrowedAmount, setUserBorrowedAmount] = useState(0)
   const [UserBorrowedRate, setUserBorrowedRate] = useState(0)
   const [UserTokenPrice, setUserTokenPrice] = useState(0)
@@ -56,7 +57,15 @@ const Home = () => {
 
   }
   const getData = async () => {
-    let res = await ammContract.tokenPoolInfo(TokenAddress).catch(e => {
+    ammContract.tokenPoolInfo(TokenAddress).then((res) => {
+      if (res) {
+        setDepositETH(res[0]?.toString())
+        setStakingAmount(res[1]?.toString())
+        setBorrowedAmount(res[3]?.toString())
+        setBorrowedRate(res[3]?.toString() / res[1]?.toString())
+        setTokenPrice(res[2]?.toString())
+      }
+    }).catch(e => {
       console.log(e);
       toast.error('LP not found!')
       setDepositETH(0)
@@ -70,15 +79,17 @@ const Home = () => {
       setUserBorrowedRate(0)
       setUserTokenPrice(0)
     })
-    if (res) {
-      setDepositETH(res[0]?.toString())
-      setStakingAmount(res[1]?.toString())
-      setBorrowedAmount(res[3]?.toString())
-      setBorrowedRate(res[3]?.toString() / res[1]?.toString())
-      setTokenPrice(res[2]?.toString())
-    }
 
-    let userRes = await ammContract.userPositionInfo(address, TokenAddress).catch(e => {
+
+    ammContract.userPositionInfo(address, TokenAddress).then((userRes) => {
+      if (userRes) {
+        setUserDepositETH(userRes[0]?.toString())
+        setUserStakingAmount(userRes[1]?.toString())
+        setUserBorrowedAmount(userRes[2]?.toString())
+        setUserBorrowedRate(userRes[3]?.toString())
+        setUserTokenPrice(userRes[4]?.toString())
+      }
+    }).catch(e => {
       console.log(e);
       setUserDepositETH(0)
       setUserStakingAmount(0)
@@ -86,12 +97,20 @@ const Home = () => {
       setUserBorrowedRate(0)
       setUserTokenPrice(0)
     })
-    if (userRes) {
-      setUserDepositETH(userRes[0]?.toString())
-      setUserStakingAmount(userRes[1]?.toString())
-      setUserBorrowedAmount(userRes[2]?.toString())
-      setUserBorrowedRate(userRes[3]?.toString())
-      setUserTokenPrice(userRes[4]?.toString())
+
+    let TokenShare = await ammContract.userStakeTokenShare(address, TokenAddress).catch(e => {
+      console.log(e);
+      setUserStakeTokenShare(0)
+    })
+    if (TokenShare) {
+      setUserStakeTokenShare(TokenShare?.toString())
+      let calShareTokenUnstakeAmount = await ammContract.calShareTokenUnstakeAmount(TokenAddress, TokenShare).catch(e => {
+        console.log(e);
+        setUserStakingAmount(0)
+      })
+      if (calShareTokenUnstakeAmount) {
+        setUserStakingAmount(calShareTokenUnstakeAmount?.toString())
+      }
     }
   }
 
@@ -288,18 +307,22 @@ const Home = () => {
         </div>
         <div className={styles.title}>User Asset Information</div>
         <div className={styles.informationBox}>
-          <div className={styles.subCard}>
+          <div className={styles.subCard} >
             <div className={styles.formOutItem}>
               <div>ETH Banlance</div>
               <div className={styles.ModelnumOut}>{weiToEth(UserDepositETH)} ETH</div>
             </div>
+            <div className={styles.formOutItem} style={{ width: '500px' }}>
+              <div>User Stake Token Share</div>
+              <div className={styles.ModelnumOut}>{weiToEth(UserStakeTokenShare)}</div>
+            </div>
             <div className={styles.formOutItem}>
               <div>Staking Amount</div>
-              <div className={styles.ModelnumOut}>{weiToEth(UserStakingAmount)} {symbol}</div>
+              <div className={styles.ModelnumOut}>{weiToEth(UserStakingAmount).toFixed(6)} {symbol}</div>
             </div>
             <div className={styles.formOutItem}>
               <div>Borrowed Amount</div>
-              <div className={styles.ModelnumOut}>{weiToEth(UserBorrowedAmount)} {symbol}</div>
+              <div className={styles.ModelnumOut}>{weiToEth(UserBorrowedAmount).toFixed(6)} {symbol}</div>
             </div>
             <div className={styles.formOutItem}>
               <div>Healthy Factor</div>
@@ -322,7 +345,7 @@ const Home = () => {
       >
         <div className={styles.xbody}>
           <div className={styles.formOutItem}>
-            <div className={styles.amount}>Amount:</div>
+            <div className={styles.amount}>{step == 2 ? 'Token Share' : 'Amount:'}</div>
             <Input className={styles.customTokenInput} value={amount} onChange={amountChange} />
           </div>
         </div>
