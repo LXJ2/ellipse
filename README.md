@@ -23,5 +23,6 @@ Your idea is quite interesting! It’s an innovative **Memecoin economic model**
 
 Let me know if you’d like to further design this model or need assistance with writing a whitepaper!
 
-![Uploading image.png…]()
+<img width="736" alt="image" src="https://github.com/user-attachments/assets/63c229c1-93f4-4019-8655-df241a68e9f4">
+
 
