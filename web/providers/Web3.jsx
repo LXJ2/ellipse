@@ -13,7 +13,7 @@ import { getDefaultWallets, RainbowKitProvider, lightTheme } from "@rainbow-me/r
 import {
   sepolia,
   arbitrum,
-  goerli,
+  scrollSepolia,
   mainnet,
   optimism,
   polygon,
@@ -40,7 +40,7 @@ const avalanche = {
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
     sepolia,
-    arbitrum,
+    scrollSepolia,
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? [sepolia] : [])
   ],
   [publicProvider()]

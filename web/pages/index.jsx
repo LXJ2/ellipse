@@ -9,7 +9,7 @@
 import { ethers } from "ethers"
 import { useEffect, useState } from 'react'
 import { useContracts } from '@/hooks/useContract';
-import { useAccount, useBalance } from 'wagmi'
+import { useAccount, useNetwork } from 'wagmi'
 import ammABI from 'Abi/amm.json'
 import { Input, Modal } from 'antd';
 import styles from '@/styles/home.module.css'
@@ -25,7 +25,7 @@ const Home = () => {
   const [OpenModel, setOpenModel] = useState(false);
   const [ModelTitle, setModelTitle] = useState('Deposit ETH');
   const [avaliableNum, setAvaliableNum] = useState(0)
-
+  const { chain } = useNetwork()
   const [TokenAddress, setTokenAddress] = useState('')
   const [step, setStep] = useState(1)
   const [DepositETH, setDepositETH] = useState(0)
@@ -39,7 +39,23 @@ const Home = () => {
   const [UserBorrowedAmount, setUserBorrowedAmount] = useState(0)
   const [UserBorrowedRate, setUserBorrowedRate] = useState(0)
   const [UserTokenPrice, setUserTokenPrice] = useState(0)
-  const ammContract = useContracts('0xf8cc1b6512989e1178d7E9aA0C1d32B75d6A8106', ammABI)
+  const [ammContract, setAmmContract] = useState('')
+  const [ammContractAddress, setAmmContractAddress] = useState('')
+
+
+  useEffect(() => {
+    if (chain.id == 11155111) {
+      setAmmContract(useContracts('0xf8cc1b6512989e1178d7E9aA0C1d32B75d6A8106', ammABI))
+      setAmmContractAddress('0xf8cc1b6512989e1178d7E9aA0C1d32B75d6A8106')
+    }
+
+    if (chain.id == 534351) {
+      setAmmContract(useContracts('0xc2388c862D9f526eC6F3c625b9755388a8edfa14', ammABI))
+      setAmmContractAddress('0xc2388c862D9f526eC6F3c625b9755388a8edfa14')
+
+    }
+
+  }, [chain])
 
   useEffect(() => {
     if (TokenAddress) {
@@ -141,7 +157,7 @@ const Home = () => {
         console.log(e);
       })
       let avaliableNum = Number(weiToEth(banlance.toString()))
-      let res = await tokenContract.allowance(address, '0xf8cc1b6512989e1178d7E9aA0C1d32B75d6A8106').catch(e => {
+      let res = await tokenContract.allowance(address, ammContractAddress).catch(e => {
         console.log(e);
       })
       let allowanceNum = Number(weiToEth(res.toString()))
@@ -231,7 +247,7 @@ const Home = () => {
   const tokenApprove = async () => {
     const tokenContract = useContracts(TokenAddress, tokenAbi)
     const maxValue = ethers.constants.MaxUint256;
-    await tokenContract.approve('0xf8cc1b6512989e1178d7E9aA0C1d32B75d6A8106', maxValue).then(res => {
+    await tokenContract.approve(ammContractAddress, maxValue).then(res => {
       stake()
     }).catch(e => {
       console.log('bv', e);
