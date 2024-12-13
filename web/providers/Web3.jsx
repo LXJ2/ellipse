@@ -11,37 +11,15 @@ import "@rainbow-me/rainbowkit/styles.css"
 import { configureChains, createConfig, WagmiConfig, } from "wagmi"
 import { getDefaultWallets, RainbowKitProvider, lightTheme } from "@rainbow-me/rainbowkit"
 import {
-  sepolia,
-  arbitrum,
-  scrollSepolia,
-  mainnet,
-  optimism,
-  polygon,
-  zora,
-  bsc
+  mantleTestnet
 } from "wagmi/chains"
 import { publicProvider } from "wagmi/providers/public"
 import merge from "lodash.merge";
 
-const avalanche = {
-  id: 6001,
-  name: 'BounceBit Mainnet',
-  iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png',
-  iconBackground: '#fff',
-  nativeCurrency: { name: 'BounceBit', symbol: 'BB', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://fullnode-mainnet.bouncebitapi.com/'] },
-  },
-  blockExplorers: {
-    default: { name: 'BounceBit', url: 'https://bbscan.io/' },
-  }
-}
-
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
-    sepolia,
-    scrollSepolia,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? [sepolia] : [])
+    mantleTestnet,
+    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? [mantleTestnet] : [])
   ],
   [publicProvider()]
 )

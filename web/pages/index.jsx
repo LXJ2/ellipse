@@ -44,16 +44,9 @@ const Home = () => {
 
 
   useEffect(() => {
-    if (chain.id == 11155111) {
-      setAmmContract(useContracts('0xf8cc1b6512989e1178d7E9aA0C1d32B75d6A8106', ammABI))
-      setAmmContractAddress('0xf8cc1b6512989e1178d7E9aA0C1d32B75d6A8106')
-    }
+    setAmmContract(useContracts('0xcE06F513bEDc130d1FE12Cb5A3624266CFCDCF66', ammABI))
+    setAmmContractAddress('0xcE06F513bEDc130d1FE12Cb5A3624266CFCDCF66')
 
-    if (chain.id == 534351) {
-      setAmmContract(useContracts('0xc2388c862D9f526eC6F3c625b9755388a8edfa14', ammABI))
-      setAmmContractAddress('0xc2388c862D9f526eC6F3c625b9755388a8edfa14')
-
-    }
 
   }, [chain])
 
